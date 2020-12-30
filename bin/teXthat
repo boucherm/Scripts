@@ -1,0 +1,25 @@
+#!/bin/bash
+
+if [ $# -ne 1 ]
+then
+	echo $(basename $0)": expects one and only one argument"
+	exit -1
+fi
+
+input=$1
+name=$( echo $input | cut -d. -f1 )
+#ext=$( echo $input | cut -d. -f2 )
+
+#if [ "$ext" != "tex" ]
+#then
+	#echo $(basename $0)": expects a file with tex extension, instead found: "$ext
+	#exit -1
+#fi
+
+[ -f $name".tex" ] || { echo "Error, file "$name".tex does not exist"; exit -1; }
+
+
+#pdflatex $name && bibtex $name && pdflatex $name && pdflatex $name
+
+#rm *.aux  *.bbl  *.blg  *.log  *.toc
+pdflatex -halt-on-error $name && bibtex $name && pdflatex $name && pdflatex $name

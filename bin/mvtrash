@@ -1,0 +1,28 @@
+#!/bin/zsh
+
+#mv -t ~/.mytrash "$@"
+
+#echo $#" files"
+#echo `pwd`
+
+#for file in $@
+for file in $*
+do
+  #echo $file
+  filename=`basename $file`
+  #echo $filename
+  if [ -e ~/.mytrash/$filename ]
+  then
+    dst=$filename
+    cpt=1
+    while [ -e ~/.mytrash/$dst"_$cpt" ]
+    do
+      cpt=$(( $cpt + 1 ))
+    done
+    mv $file ~/.mytrash/$dst"_$cpt"
+    #echo mv $file ~/.mytrash/$dst"_$cpt"
+  else
+    mv $file ~/.mytrash/
+    #echo 'mv $file ~/.mytrash/ '
+  fi
+done

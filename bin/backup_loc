@@ -1,0 +1,15 @@
+#!/bin/zsh
+
+echo "mount disk:"
+echo "   lsblk"
+echo "   sudo cryptsetup luksOpen /dev/sdc1 Backup"
+echo "   sudo mount /dev/mapper/Backup /media/ExternDrive"
+echo ""
+echo "dry-run:"
+echo '   sudo rsync -aCHnv --delete-after --itemize-changes /media/Data/ /media/ExternDrive/Data | pee "cat" "vim -"'
+echo "run:"
+echo "   sudo rsync -aCHv  --delete-after --itemize-changes /media/Data/ /media/ExternDrive/Data"
+echo ""
+echo "unmount disk:"
+echo "   sudo umount /media/ExternDrive"
+echo "   sudo cryptsetup luksClose Backup"

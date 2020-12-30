@@ -1,0 +1,9 @@
+#!/bin/zsh
+
+#source ranger ranger $HOME; $SHELL -c "wmctrl -r :ACTIVE: -T 'urxvt'; zsh -i"
+# ^ Was used to exit in the last ranger directory.
+# Used to work well ( ubuntu 14.04 and before ).
+# Spits ugly error messages with ubuntu 16.04
+
+source $HOME/Code/Scripts/bin/ranger_cd;
+$SHELL -c "wmctrl -r :ACTIVE: -T 'urxvt'; zsh -i"

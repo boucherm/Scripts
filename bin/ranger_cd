@@ -1,0 +1,8 @@
+#!/bin/zsh
+
+# We would like to use /dev/stdout instead of an ugly hard-coded user path
+# Alas, "ranger --choosedir" doesn't play well with /dev/stdout
+
+ranger --choosedir=$HOME/.config/ranger/rangerdir;
+cd "$( cat $HOME/.config/ranger/rangerdir )";
+# ^ quotes are necessary to handle paths containing spaces
