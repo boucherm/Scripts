@@ -1,0 +1,3 @@
+#!/bin/zsh
+
+awesome -k &> /tmp/awesome; notify-send "`cat /tmp/awesome`"; rm /tmp/awesome
