@@ -1,0 +1,57 @@
+#!/bin/bash
+
+
+function print_usage()
+{
+  echo -e "Description:"
+  echo -e "\tOpens in tabs with vim, with in diff mode, the files that changed between the current state and a specific commit."
+
+  echo -e "Caveats:"
+  echo -e "\tNeeds to have that commit checked-out somewhere, though."
+  echo -e "\tNeeds to be ran at the root of the git repo."
+
+  echo -e "Usage:"
+  echo -e "{"$0"} {branch/commit/hash} {path_to_commit_checked_out}"
+}
+
+
+function main()
+{
+  if [ $# -ne "2" ];
+  then
+    print_usage
+    exit 1
+  fi
+
+  ref_hash=$1;
+  ref_path=$2;
+
+  files=$(git diff --name-only $ref_hash)
+
+  cmd="vim -c \"";
+  set_diff=" | set diff | set scb | set foldmethod=diff | set nocursorline"
+
+  is_first_tab="1"
+  for file in $files;
+  do
+
+    ref_file=$ref_path/$file
+    cur_file=$file
+
+    # Skip non-files ( e.g. submodules )
+    [ -f $ref_file ] || [ -f $file ] || continue;
+
+    tab_cmd=" | tabe "
+    [[ $is_first_tab == "1" ]] && tab_cmd=" e ";
+    is_first_tab="0"
+
+    cmd=$cmd$tab_cmd$ref_file$set_diff;
+    cmd=$cmd" | vsp "$cur_file$set_diff;
+
+  done;
+
+  cmd=$cmd"\"";
+  echo $cmd
+}
+
+main $*

@@ -1,0 +1,10 @@
+#!/bin/zsh
+
+# If no 'DropDown' tmux session, just spawn a term
+{ tmux list-sessions | grep DropDown } || { notify-send 'no session !'; urxvt -cd $HOME; exit 0;}
+
+# If no DropDown window open, spawn one
+{ wmctrl -l | grep DropDown } || { notify-send 'no window'; urxvt -e zsh -i -c 'tmux attach-session -t DropDown';}
+
+# Else, attach to it
+wmctrl -a DropDown;

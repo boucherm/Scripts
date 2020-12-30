@@ -1,0 +1,88 @@
+#!/bin/bash
+
+
+# Chronicles of an unsucessful attempt to execute this script automatically when plugging the keyboard.
+# Was done with udev, followed: https://opensource.com/article/18/11/udev
+#
+# To see devices plugged / unplugged, run:
+# udevadm monitor
+#
+# Also:
+# watch -n1 "ls /dev"
+#
+# And:
+# watch -n1 "tree /dev/input"
+#
+# Get more infos on the device:
+# udevadm info -a -n /dev/hidraw1
+#
+# Create a udev file:
+# /etc/udev/rules.d/80-local.rules
+#
+# Fill using infos from udevadm info:
+# ATTRS{serial}=="06031021AF2D84675AE3BEBEF5001BC6",  ACTION=="add",  RUN+="/usr/local/bin/keyboard_settings"
+#
+# Called this script in background in the afore-mentioned script ↑
+#
+# Reload udev:
+# sudo udevadm control --reload
+#
+# Script did ran, but for some reason the keyboard mods were not applied/effective :(
+#
+#
+#
+# Potential workaround:
+# Run a background script at startup, which'd call inotifywait ( on /dev/input or something ) and trigger this script/file on changes
+
+
+#- to get a list of the current mappings use:
+# xmodmap -pke
+#
+#- to get the keycode of pressed keys use:
+# xev
+#
+#--- Set layout
+setxkbmap -layout us
+#setxkbmap -layout us -variant intl
+#
+#---- Num Lock
+numlockx on &
+#xdotool key 77
+#
+#--- Compose key
+#
+setxkbmap -option compose:ralt
+#
+#---- Caps Lock
+#
+# Disabled, completely, cannot map to another key
+#setxkbmap -option caps:none
+#
+# As ctrl
+#setxkbmap -option caps:ctrl_modifier
+#
+# As F12:
+#  .on this machine the caps_lock code is 66,
+#   its value can be found with the  "xev" command map caps_lock to F12 in order to use it as the tmux prefix
+# . first, disable the caps_lock without losing the key
+setxkbmap -option caps:ctrl_modifier
+# . second, map the  caps_lock keycode to F12
+xmodmap -e 'keycode 66 = F12'
+#
+#--- Bracket/Brace and parentheses keys
+#
+#- Switch [ with { and ] with }
+xmodmap -e 'keysym bracketright = braceright bracketright'
+xmodmap -e 'keysym bracketleft  = braceleft bracketleft'
+#
+#- Switch "[" with "(" and "]" with ")", I think, to be verified
+#keysym bracketleft  = parenleft  braceleft
+#keysym bracketright = parenright braceright
+#keysym 9            = 9          bracketleft
+#keysym 0            = 0          bracketright
+#
+#
+#---- Insert ( disable )
+# 118 is the 'insert' keycode
+xmodmap -e "keycode 118 ="
+#!/bin/bash

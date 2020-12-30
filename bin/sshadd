@@ -1,0 +1,44 @@
+#!/bin/bash
+
+#set -x
+#set -e
+
+# Why is eval needed ?
+# https://stackoverflow.com/questions/17846529/could-not-open-a-connection-to-your-authentication-agent/4086756#4086756
+# "ssh-add and ssh (assuming you are using the openssh implementations) require an environment variable to know
+# how to talk to the ssh agent. If you started the agent in a different command prompt window to the one you're
+# using now, or if you started it incorrectly, neither ssh-add nor ssh will see that environment variable set
+# (because the environment variable is set locally to the command prompt it's set in)."
+
+
+# ↓ Spawns a new agent everytime...
+#eval $( ssh-agent )
+#
+# ↓ Seems to work better, but won't be working over ssh connections
+#ps -A | grep ssh-agent || eval $( ssh-agent )
+#
+# ↓ Latest attempt, to be tested / verified
+ps -A | grep ssh-agent
+ret=$?
+echo "ret: "$ret
+if [[ $ret -eq 0 ]];
+then
+  echo "exists"
+  export SSH_AGENT_PID=$( pidof ssh-agent )
+else
+  echo "doesn't exist"
+  eval $( ssh-agent )
+fi
+
+need_to_add=0
+ssh-add -l || need_to_add=1
+
+if [ $need_to_add -ne $((1)) ];
+then
+  ssh-add -l | ack '.ssh/id_rsa (RSA)' || need_to_add=1
+fi
+
+if [ $need_to_add -eq $((1)) ];
+then
+  ssh-add -t 36000 ~/.ssh/id_rsa
+fi

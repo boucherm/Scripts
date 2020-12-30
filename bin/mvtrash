@@ -1,17 +1,26 @@
 #!/bin/zsh
 
-#mv -t ~/.mytrash "$@"
-
-#echo $#" files"
-#echo `pwd`
-
-#for file in $@
-for file in $*
+#for arg in $@
+for arg in $*
 do
-  #echo $file
-  filename=`basename $file`
-  #echo $filename
-  if [ -e ~/.mytrash/$filename ]
+  [ "$arg" = '-f' ] && continue;
+  #[ "$arg" = '-' ] && continue;
+  [ "$arg" = '--one-file-system' ] && continue;
+  [ "$arg" = '--no-preserve-root' ] && continue;
+  [ "$arg" = '--preserve-root' ] && continue;
+  [ "$arg" = '-r' ] && continue;
+  [ "$arg" = '-d' ] && continue;
+
+  # Special case: symlinks
+  if [ -L $arg ]
+  then
+    \rm $arg
+    exit
+  fi
+
+  filename=`basename $arg`
+
+  if { [ -e $filename ] && [ -e ~/.mytrash/$filename ] } || { [ -d $filename ] && [ -d ~/.mytrash/$filename ] }
   then
     dst=$filename
     cpt=1
@@ -19,10 +28,8 @@ do
     do
       cpt=$(( $cpt + 1 ))
     done
-    mv $file ~/.mytrash/$dst"_$cpt"
-    #echo mv $file ~/.mytrash/$dst"_$cpt"
+    mv $arg ~/.mytrash/$dst"_$cpt"
   else
-    mv $file ~/.mytrash/
-    #echo 'mv $file ~/.mytrash/ '
+    mv $arg ~/.mytrash/
   fi
 done
