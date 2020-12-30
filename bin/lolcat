@@ -1,0 +1,127 @@
+#!/bin/bash
+
+
+args=$*
+#echo $args
+#echo ""
+
+parsing_width=0
+width=10
+#re='^[0-9]+$'
+
+file_set=0
+file=""
+
+line_set=0
+
+for arg in $args
+do
+	if [ $arg = "-h" ]
+	then
+		echo -e "usage: lolcat [-w n] file line \n where -w is the width mesured in lines, default value is 10"
+		exit
+	fi
+
+	if [ $parsing_width -eq "1" ]
+	then
+		#echo "parsing width"
+		#if ! [[ $args =~ $re ]] ; then
+			#echo "error: width is not a number"
+			#exit -1
+		#fi
+		if [ $arg -ge 0 ]
+		then
+			width=$arg
+		else
+			echo "error: invalid width number"
+			exit -1
+		fi
+		parsing_width="0"
+		continue
+	fi
+
+	if [ $arg = "-w" ]
+	then
+		parsing_width="1"
+		continue
+	fi
+
+	if [ $file_set -eq "0" ]
+	then
+		if [ -f $arg ]
+		then
+			file=$arg
+			file_set="1"
+		else
+			echo "error: file "$arg" doesn't exist"
+			exit -3
+		fi
+		continue
+	fi
+
+	if [ $line_set -eq "0" ]
+	then
+		line=$arg
+		line_set="1"
+		continue
+	fi
+done
+
+if [ $line_set -ne "1" ]
+then
+	echo "no line given"
+	exit -2
+fi
+
+if [ $file_set -ne "1" ]
+then
+	echo "no file given"
+	exit -2
+fi
+
+#echo "width: "$width
+#echo "file : "$file
+#echo "line : "$line
+
+first_line=$(( $line - $width ))
+last_line=$(( $line + $width ))
+
+#echo "first: "$first_line
+#echo "last : "$last_line
+
+if [ $first_line -lt "1" ]
+then
+	echo "first line lesser than 1"
+	first_line="1"
+fi
+
+file_length=$( wc -l $file | cut -d " " -f 1 )
+#echo "file_length: "$file_length
+if [ $last_line -gt $file_length ]
+then
+	echo "last line greater than the number of lines in file"
+	last_line=$file_length
+fi
+
+#sed_arg="'"$first_line","$last_line"p'"
+#echo $sed_arg
+#eval sed -n $sed_arg $file
+
+#echo $file":"$line
+#echo ""
+for cline in $( seq $first_line $last_line)
+do
+	echo -n $cline
+	if [ $cline -eq $line ]
+	then
+		echo -n "-->"
+	else
+		echo -n "   "
+	fi
+	echo -n "|  "
+	sed_arg="'"$cline"p'"
+	#echo $sed_arg
+	eval sed -n $sed_arg $file
+done
+
+#eval sed -n $sed_arg $file

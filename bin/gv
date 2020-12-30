@@ -1,0 +1,12 @@
+#!/usr/bin/zsh
+
+if [ $# -eq 0 ]
+then
+   \cat $( \which $0 )
+else
+   output=$( \grep -ril $* ) \
+   && echo $output           \
+   && echo "-------"         \
+   && read dummy             \
+   && vim -p $( echo $output | vipe )
+fi

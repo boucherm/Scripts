@@ -1,0 +1,11 @@
+#!/bin/sh
+
+if [ $# -ne "0" ]
+then
+  qrencode $1 -o - | display -backdrop
+  #qrencode $1 -o - | edisplay
+else
+  xclip -o | qrencode -o - | display -backdrop
+  #xclip -o | qrencode -o - | edisplay
+fi
+

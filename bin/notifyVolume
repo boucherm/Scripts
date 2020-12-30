@@ -1,0 +1,15 @@
+#!/bin/bash
+
+
+#text=$(amixer sget Master | awk '{ if ( substr($4, 1, 1) == "[" ) print substr($4, 2, 3) }')
+text=$(awk -F "[][]" '/dB/ {print $2 }' <( amixer sget Master ))
+
+
+#--- Notify-send version
+#notify-send -t 500 "<span color=\"#d5aa28\"> $text </span>"
+notify-send -t 500 "$text"
+
+
+#--- Naughty version, with transparency
+#echo "naughty.notify({ text='$text', timeout = 0.5, opacity=0.75})" | awesome-client
+

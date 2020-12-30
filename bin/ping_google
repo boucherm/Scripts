@@ -1,0 +1,3 @@
+#!/bin/sh
+
+notify-send "`ping -c 1 www.google.fr`"

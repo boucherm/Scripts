@@ -1,0 +1,25 @@
+#!/bin/bash
+
+#/usr/bin/dbus-send --session --type=method_call --reply-timeout=5000 \
+#/usr/bin/dbus-send --dest=org.freedesktop.Notifications \
+  #/org/freedesktop/Notifications  org.freedesktop.Notifications.Notify \
+  #string:"app_name" \
+  #uint32:1 \
+  #string:'app_icon' \
+  #string:"" \
+  #string:"$*" \
+  #array:string:"" \
+  #dict:string:string:"",""\
+  #int32:10000
+
+
+#kill `pidof notify-osd`
+#DISPLAY=:0 notify-send -t 6000 "$*"
+
+#twmnc $*
+#kill `pidof` twmnd;
+#twmnd &
+DISPLAY=:0 /media/Datas/hellcook/Softs/twmn/bin/twmnc $* &
+
+
+

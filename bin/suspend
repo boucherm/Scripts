@@ -1,0 +1,7 @@
+#!/bin/sh
+
+if zenity --question --text="Mise en veille"; then
+  sudo pm-suspend & slock
+  #sudo pm-suspend
+fi
+
