@@ -1,44 +1,56 @@
 #!/bin/bash
 
-#set -x
-#set -e
 
 # Why is eval needed ?
 # https://stackoverflow.com/questions/17846529/could-not-open-a-connection-to-your-authentication-agent/4086756#4086756
 # "ssh-add and ssh (assuming you are using the openssh implementations) require an environment variable to know
-# how to talk to the ssh agent. If you started the agent in a different command prompt window to the one you're
-# using now, or if you started it incorrectly, neither ssh-add nor ssh will see that environment variable set
-# (because the environment variable is set locally to the command prompt it's set in)."
+#  how to talk to the ssh agent. If you started the agent in a different command prompt window to the one you're
+#  using now, or if you started it incorrectly, neither ssh-add nor ssh will see that environment variable set
+#  (because the environment variable is set locally to the command prompt it's set in)."
 
 
 # ↓ Spawns a new agent everytime...
 #eval $( ssh-agent )
-#
+
 # ↓ Seems to work better, but won't be working over ssh connections
 #ps -A | grep ssh-agent || eval $( ssh-agent )
-#
+
 # ↓ Latest attempt, to be tested / verified
-ps -A | grep ssh-agent
+
+if [[ -z ${SSH_AGENT_PID+x} || -z ${SSH_AUTH_SOCK} ]]
+then
+  echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+  echo "Environment variables not found."
+  echo "You should _source_ this script if summoning it over an ssh connection !"
+  echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+fi
+
+ps -A | grep ssh-agent > /dev/null
 ret=$?
-echo "ret: "$ret
 if [[ $ret -eq 0 ]];
 then
-  echo "exists"
   export SSH_AGENT_PID=$( pidof ssh-agent )
+  #export SSH_AUTH_SOCK=$( find /tmp/ssh-* -name "agent."$((SSH_AGENT_PID - 1)) )
+  export SSH_AUTH_SOCK=$( find /tmp/ssh-* -name "agent.*" )
+  echo "Found existing agent."
+  echo "  SSH_AGENT_PID: "$SSH_AGENT_PID
+  echo "  SSH_AUTH_SOCK: "$SSH_AUTH_SOCK
 else
-  echo "doesn't exist"
   eval $( ssh-agent )
+  echo "Started a new agent."
 fi
 
 need_to_add=0
 ssh-add -l || need_to_add=1
+echo "need to add : "$need_to_add
 
-if [ $need_to_add -ne $((1)) ];
+if (( $need_to_add != 1 ));
 then
-  ssh-add -l | ack '.ssh/id_rsa (RSA)' || need_to_add=1
+  ssh-add -l | ack '.ssh/id_rsa' || need_to_add=1
 fi
 
-if [ $need_to_add -eq $((1)) ];
+if (( $need_to_add == 1 ));
 then
+  set -x
   ssh-add -t 36000 ~/.ssh/id_rsa
 fi

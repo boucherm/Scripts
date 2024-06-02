@@ -1,3 +1,6 @@
-#/usr/bin/zsh
+#/bin/sh
 
-i3lock -c 1a2132 -f & sudo pm-suspend
+if zenity --question --text="Suspend ?";
+then
+  i3lock -c 1a2132 -f & sudo pm-suspend
+fi
